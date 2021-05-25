@@ -1,33 +1,55 @@
-import logo from './logo.svg';
 import './App.css';
-const io = require("socket.io-client");
-const socket = io("https://api.example.com", {
-  withCredentials: true,
-  extraHeaders: {
-    "my-custom-header": "abcd"
-  }
-});
+import Socket from 'socket.io-client';
+import React, { useState, useEffect } from 'react';
+
+var socket = Socket('http://localhost:3001');
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+var room = urlParams.get('room');
+
+// socket.emit('chat message', "je suis co");
 
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+    const [init, setinit] = useState(true);
+    const [ingame, setingame] = useState(false);
+
+    useEffect(() => {
+        socket.on("new_room", room => {
+            console.log(room.url);
+            console.log(room.name);
+        })
+
+        socket.on("open_rooms", rooms => {
+            console.log(rooms.rooms);
+        })
+    }, [init])
+
+
+    function create_room(params) {
+        socket.emit('create_room', "");
+    }
+
+    function Menu() {
+        return (
+            <div className="Menu">
+                <h1>presentations</h1>
+                <button onClick={create_room}>Create Room</button>
+            </div>
+        )
+    }
+
+    function Game() {
+        return (
+            <div>
+
+            </div>
+        )
+    }
+
+    return (
+        <div className="App">
+            {ingame === true ? <Game roomid={room} /> : <Menu setingame={setingame} />}
+        </div>
+    );
 }
-
-export default App;
