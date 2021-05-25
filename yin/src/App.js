@@ -36,8 +36,8 @@ export default function App() {
     return (
       <div className="flex flex-col justify-center items-center">
         <h1 className="text-5xl font-bold text-white mt-20">Chinese checkers</h1>
-        <p className="text-white">username: {username}</p>
-        <input name="username" value={username} className="p-2 w-1/2 rounded-lg mt-20" onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+        <p className="text-white mt-20">username: {username}</p>
+        <input name="username" value={username} className="p-2 w-1/2 rounded-lg mt-3" onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
         <button className="bg-blue-600 text-white text-xl font-bold px-16 py-3 mt-5 rounded-lg" onClick={create_room}>play</button>
         <button className="bg-blue-400 text-white text-lg font-bold px-16 py-3 rounded-lg" onClick={create_room}>Create a room</button>
       </div>
