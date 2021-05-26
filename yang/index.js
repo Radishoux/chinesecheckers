@@ -27,9 +27,10 @@ io.on('connection', (socket) => {
 io.on('connection', (socket) => {
     socket.on('create_room', (msg) => {
         console.log('create_room', socket.id)
-        fetch('https://random-word-api.herokuapp.com/word?number=10')
+        fetch('https://random-word-api.herokuapp.com/word?number=3')
             .then(res => res.json())
             .then(body => {
+                console.log(body.toString().replaceAll(',', ''))
                 socket.emit('new_room', { url: `${furl}?room=${body.toString().replaceAll(',','')}`, name: body.toString().replaceAll(',', '') });
             });
     });
@@ -37,8 +38,9 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('move_me_to_room', (msg) => {
-        console.log('move_me_to_room', socket.id)
+        console.log('move_me_to_room', socket.id, msg.room_name)
         socket.join(msg.room_name);
+        socket.emit('joined_room', { roomname: msg.room_name });
     });
 });
 

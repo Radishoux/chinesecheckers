@@ -6,57 +6,101 @@ import React, { useState, useEffect } from 'react';
 var socket = Socket('http://localhost:3001');
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-var room = urlParams.get('room');
 
 // socket.emit('chat message', "je suis co");
 
 
 export default function App() {
-  const [init, setinit] = useState(true);
-  const [ingame, setingame] = useState(false);
+    const [init] = useState(true);
+    const [ingame, setingame] = useState(false);
+    const [username, setUsername] = useState("");
+    const [room, setRoom] = useState(urlParams.get('room'));
 
-  useEffect(() => {
-    socket.on("new_room", room => {
-      console.log(room.url);
-      console.log(room.name);
-    })
+    useEffect(() => {
+        socket.on("new_room", rroom => {
+            setRoom(rroom.name);
+            console.log(rroom.url);
+            console.log(rroom.name);
+            on_type_un_input();
+        })
 
-    socket.on("open_rooms", rooms => {
-      console.log(rooms.rooms);
-    })
-  }, [init])
+        socket.on("open_rooms", rooms => {
+            console.log(rooms.rooms);
+        })
 
-  function create_room(params) {
-    socket.emit('create_room', "");
-  }
+        socket.on("joined_room", rroom => {
+            alert("welcome to room " + rroom.roomname);
+            setingame(true);
+        })
 
-  const Menu = () => {
-    const [username, setUsername] = useState(null);
+    }, [init])// eslint-disable-line react-hooks/exhaustive-deps
+
+    function create_room(params) {
+        socket.emit('create_room', "");
+    }
+
+    function move_me_to_room(params) {
+        if (room === null || room === undefined || room === "") {
+            alert("get a room!");
+        }
+        else if (document.getElementById("username_input").value === "") {
+            alert("You'll need a username first");
+        }
+        else {
+            setUsername(document.getElementById("username_input").value);
+            console.log(room);
+            socket.emit('move_me_to_room', {room_name: room});
+        }
+    }
+
+    function on_type_un_input() {
+        if (document.getElementById("username_input").value === "" || room === null || room === "") {
+            document.getElementById("playbtn").style.background = "grey";
+        }
+        else {
+            document.getElementById("playbtn").style.background = "green";
+        }
+    }
+
+    function Extra() {
+        console.log(room)
+        return (
+            <div style={{"background":"rgba(255,255,255,0.7)", "height":"20vh", "width":"50vw", "margin":"50px", "borderRadius":"10px"}}>
+            {room === null || room === undefined || room === "" ?
+            <h2 className="text-4xl font-bold mt-20">Regles</h2> :
+            <h2 className="text-4xl font-bold mt-20">Room_infos</h2> }
+
+            </div>
+        )
+    }
+
+    function Menu() {
+        return (
+            <div className="flex flex-col justify-center items-center">
+                <h1 className="text-5xl font-bold text-white mt-20">Chinese checkers</h1>
+                <h2 className="text-4xl font-bold text-white mt-20">username</h2>
+                <input id="username_input" name="username" className="p-2 w-2/5 rounded-lg mt-3" onChange={on_type_un_input} placeholder="Username" />
+                <button id="playbtn" className="text-white text-xl font-bold px-16 py-3 mt-5 rounded-lg" onClick={move_me_to_room} style={{"background":"grey"}}>play</button>
+                <button className="bg-blue-400 text-white text-lg font-bold px-16 py-3 rounded-lg" onClick={create_room}>Create a room</button>
+
+                <Extra/>
+            </div>
+        )
+    }
+
+    function Game() {
+        return (
+            <div className="flex flex-col justify-center items-center">
+                <h1 className="text-5xl font-bold text-white mt-20">{room}</h1>
+            </div>
+        )
+    }
 
     return (
-      <div className="flex flex-col justify-center items-center">
-        <h1 className="text-5xl font-bold text-white mt-20">Chinese checkers</h1>
-        <p className="text-white mt-20">username: {username}</p>
-        <input name="username" value={username} className="p-2 w-1/2 rounded-lg mt-3" onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-        <button className="bg-blue-600 text-white text-xl font-bold px-16 py-3 mt-5 rounded-lg" onClick={create_room}>play</button>
-        <button className="bg-blue-400 text-white text-lg font-bold px-16 py-3 rounded-lg" onClick={create_room}>Create a room</button>
-      </div>
-    )
-  }
-
-  function Game() {
-    return (
-      <div>
-
-      </div>
-    )
-  }
-
-  return (
-    <div className="App bg-blue-400 w-full h-full" style={{
-      backgroundImage: `url(${background})`
-    }}>
-      {ingame === true ? <Game roomid={room} /> : <Menu setingame={setingame} />}
-    </div>
-  );
+        <div className="App bg-blue-400 w-full h-full" style={{
+            backgroundImage: `url(${background})`
+        }}>
+            {ingame === true ? <Game un={username} roomid={room} /> : <Menu setingame={setingame} />}
+        </div>
+    );
 }
