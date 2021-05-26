@@ -63,13 +63,13 @@ export default function App() {
     }
 
     function Extra() {
-        console.log(room)
         return (
             <div style={{"background":"rgba(255,255,255,0.7)", "height":"20vh", "width":"50vw", "margin":"50px", "borderRadius":"10px"}}>
             {room === null || room === undefined || room === "" ?
-            <h2 className="text-4xl font-bold mt-20">Regles</h2> :
-            <h2 className="text-4xl font-bold mt-20">Room_infos</h2> }
-
+            <h2 className="text-4xl font-bold mt-20">Regles</h2>
+            :
+            <h2 className="text-4xl font-bold mt-20">Room_infos</h2>
+            }
             </div>
         )
     }
