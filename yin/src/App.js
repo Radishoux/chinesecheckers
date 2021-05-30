@@ -13,9 +13,11 @@ const urlParams = new URLSearchParams(queryString);
 export default function App() {
     const [init] = useState(true);
     const [ingame, setingame] = useState(false);
+    const [usersConnected, setUserConnected] = useState([]);
+
     const [username, setUsername] = useState("");
     const [room, setRoom] = useState(urlParams.get('room'));
-    const [roomUrl, setRoomUrl] = useState(urlParams.get('room'));
+    const [roomUrl, setRoomUrl] = useState(window.location.href);
 
 
     useEffect(() => {
@@ -35,27 +37,14 @@ export default function App() {
             console.log(rooms.rooms);
         })
 
-        socket.on("joined_room", rroom => {
-            alert("welcome to room " + rroom.roomname);
+        socket.on("joined_room", (users) => {
+            alert("welcome to room " + room);
+            console.log(users)
+            setUserConnected(users)
             setingame(true);
         })
 
     }, [init])// eslint-disable-line react-hooks/exhaustive-deps
-
-
-    function move_me_to_room(params) {
-        if (room === null || room === undefined || room === "") {
-            alert("get a room!");
-        }
-        else if (document.getElementById("username_input").value === "") {
-            alert("You'll need a username first");
-        }
-        else {
-            setUsername(document.getElementById("username_input").value);
-            console.log(room);
-            socket.emit('move_me_to_room', {room_name: room});
-        }
-    }
 
     function on_type_un_input() {
         if (document.getElementById("username_input").value === "" || room === null || room === "") {
@@ -92,6 +81,20 @@ export default function App() {
             socket.emit('create_room', "");
         }
 
+        function move_me_to_room(params) {
+            if (room === null || room === undefined || room === "") {
+                alert("get a room!");
+            }
+            else if (document.getElementById("username_input").value === "") {
+                alert("You'll need a username first");
+            }
+            else {
+                setUsername(document.getElementById("username_input").value);
+                console.log(room);
+                socket.emit('move_me_to_room', {room_name: room, username: document.getElementById("username_input").value});
+            }
+        }
+
         return (
             <div className="flex flex-col justify-center items-center">
                 <h1 className="text-5xl font-bold text-white mt-20">Chinese checkers</h1>
@@ -105,10 +108,19 @@ export default function App() {
         )
     }
 
+    console.log(usersConnected, room)
+
     function Game() {
         return (
             <div className="flex flex-col justify-center items-center">
                 <h1 className="text-5xl font-bold text-white mt-20">{room}</h1>
+                <div className="mt-10 text-3xl text-white">
+                {usersConnected.map((user) => {
+                    if (user.room_name === room) {
+                        return (<p className="mt-2">{user.username}</p>)
+                    }
+    })}
+                </div>
             </div>
         )
     }

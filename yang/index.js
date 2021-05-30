@@ -5,7 +5,8 @@ const http = require('http');
 const server = http.createServer(app);
 
 var furl = "http://localhost:3000"
-    // var furl = http://localhost:3000/
+
+let users = []
 
 const io = require('socket.io')(server, {
     cors: {
@@ -38,16 +39,17 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('move_me_to_room', (msg) => {
-        console.log('move_me_to_room', socket.id, msg.room_name)
+        console.log('move_me_to_room', socket.id, msg)
         socket.join(msg.room_name);
-        socket.emit('joined_room', { roomname: msg.room_name });
+        users.push(msg)
+        socket.emit('joined_room', users);
     });
 });
 
 io.on('connection', (socket) => {
     socket.on('existing_rooms', (msg) => {
         console.log('existing_rooms', socket.id)
-        socket.emit('open_rooms', { rooms: io.sockets.manager.rooms });
+        socket.emit('open_rooms', { rooms: io.sockets.manager.rooms, users });
     });
 });
 
