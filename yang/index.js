@@ -4,7 +4,7 @@ var app = express()
 const http = require('http');
 const server = http.createServer(app);
 
-var furl = "http: //localhost:3000"
+var furl = "http://localhost:3000"
     // var furl = http://localhost:3000/
 
 const io = require('socket.io')(server, {
@@ -30,8 +30,8 @@ io.on('connection', (socket) => {
         fetch('https://random-word-api.herokuapp.com/word?number=3')
             .then(res => res.json())
             .then(body => {
-                console.log(body.toString().replaceAll(',', ''))
-                socket.emit('new_room', { url: `${furl}?room=${body.toString().replaceAll(',','')}`, name: body.toString().replaceAll(',', '') });
+                console.log(body.toString().replace(/,/g,''))
+                socket.emit('new_room', { url: `${furl}?room=${body.toString().replace(/,/g,'')}`, name: body.toString().replace(/,/g, '') });
             });
     });
 });
